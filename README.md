@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Clay Market — Shopify-style single-page store
 
-## Getting Started
+Next.js App Router storefront + admin dashboard with Claymorphism UI, MongoDB, Cloudinary uploads, guest checkout, COD, and Lemon Squeezy (optional).
 
-First, run the development server:
+## Stack
+
+- Next.js 16 (App Router) + TypeScript + Tailwind CSS 4
+- MongoDB + Mongoose
+- Cloudinary (product/banner uploads)
+- Lemon Squeezy hosted checkout + signed webhooks
+- Cash on Delivery
+- Jose-secured admin sessions
+
+## Setup
+
+1. Copy `.env.example` to `.env.local` and fill values.
+2. Start MongoDB locally (or set `MONGODB_URI` to Atlas).
+3. Install and seed:
 
 ```bash
+npm install
+npm run seed
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Storefront: [http://localhost:3000](http://localhost:3000)
+- Admin: [http://localhost:3000/admin/login](http://localhost:3000/admin/login)
+- Default admin (seeded in MongoDB): `admin@gmail.com` / `123456`
+- Sample promo: `SOFT10`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Customer flow
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Browse the single-page store.
+2. Select a product **image** (visual variation) — not color swatches.
+3. Add to cart (drawer, localStorage-persisted). Different images of the same product are separate line items.
+4. Apply a promo code (server-validated).
+5. Guest checkout with delivery details.
+6. Pay with COD or Lemon Squeezy.
+7. Track with order number + phone at `/track`.
 
-## Learn More
+## Admin
 
-To learn more about Next.js, take a look at the following resources:
+Manage products (multi-image variations), categories, banners, promos, orders, inventory signals, announcement bar, shipping, payments, and policies.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Environment variables
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+See `.env.example`. Lemon Squeezy and Cloudinary stay inactive until credentials are set — COD and seeded Unsplash images still work for local demos.
 
-## Deploy on Vercel
+Webhook URL once Lemon Squeezy is enabled:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+`POST /api/webhooks/lemonsqueezy`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Confirm Lemon Squeezy supports your physical-goods configuration before enabling online payment in Store Settings.
+
+## Inventory policy
+
+- **COD**: stock reserved when the order is created; restored if admin cancels.
+- **Lemon Squeezy**: stock checked at checkout, reserved only after a verified paid webhook.
